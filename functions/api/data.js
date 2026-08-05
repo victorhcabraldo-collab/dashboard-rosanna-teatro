@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = 'COLE_SUA_URL_DO_APPS_SCRIPT_AQUI';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLhWmSBgvuB_UxKx1ZxoDhFBjP-tqxSqdpGlWrcOpXJExRbigyqb1vFlamxBO38EXyLw/exec';
 const CACHE_TTL = 3600;
 
 export async function onRequest(context) {
