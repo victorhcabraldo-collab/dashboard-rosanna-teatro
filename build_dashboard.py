@@ -24,14 +24,16 @@ print(f'  Meta: {len(meta)} rows | Hotmart: {len(hot)} rows | Hasta: {dg}')
 with open(TEMPLATE, encoding='utf-8') as f:
     html = f.read()
 
+meta_js = json.dumps(meta, ensure_ascii=False, separators=(',', ':'))
+hot_js = json.dumps(hot, ensure_ascii=False, separators=(',', ':'))
 html = re.sub(
     r'^const META_ROWS\s*=\s*\[.*?\];',
-    'const META_ROWS = ' + json.dumps(meta, ensure_ascii=False, separators=(',', ':')) + ';',
+    lambda m: 'const META_ROWS = ' + meta_js + ';',
     html, count=1, flags=re.MULTILINE | re.DOTALL
 )
 html = re.sub(
     r'^const HOT_ROWS\s*=\s*\[.*?\];',
-    'const HOT_ROWS = ' + json.dumps(hot, ensure_ascii=False, separators=(',', ':')) + ';',
+    lambda m: 'const HOT_ROWS = ' + hot_js + ';',
     html, count=1, flags=re.MULTILINE | re.DOTALL
 )
 html = re.sub(r'const DATA_GERACAO\s*=\s*"[^"]*";', f'const DATA_GERACAO = "{dg}";', html, count=1)

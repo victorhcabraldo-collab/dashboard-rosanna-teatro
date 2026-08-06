@@ -139,7 +139,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .tc::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:6px;border:2px solid var(--surface2);}
 .th-sort{cursor:pointer;user-select:none;}
 .th-sort:hover{color:var(--text);}
-.tc table{width:100%;border-collapse:collapse;min-width:760px;}
+.tc table{width:100%;border-collapse:collapse;min-width:1100px;}
 .tc thead th{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;padding:8px 10px;text-align:left;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;}
 .tc thead th.num{text-align:right;}
 .tc tbody td{padding:7px 10px;font-size:11px;border-bottom:1px solid var(--border);white-space:nowrap;}
@@ -149,14 +149,24 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .cg{color:#059669;font-weight:700;}.cw2{color:#d97706;font-weight:700;}.cr{color:#dc2626;font-weight:700;}.cn{color:var(--muted);}
 
 /* CRIATIVOS */
-.ads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.drill-arrow{cursor:pointer;display:inline-block;font-size:9px;margin-right:5px;color:var(--accent);user-select:none;width:12px;text-align:center;}
+.drill-arrow:hover{opacity:.7;}
+.drill-camp>td:first-child{font-weight:700!important;}
+.drill-adset>td{background:var(--surface2)30;}
+.drill-ad>td{background:var(--surface2)50;color:var(--muted);}
+.drill-ad>td:first-child{font-weight:400!important;}
+.col-grp-hdr{text-align:center!important;font-size:8px!important;letter-spacing:1px;border-bottom:2px solid var(--accent)!important;color:var(--accent)!important;}
+.ads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
 .ad-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--sh);transition:transform .15s;}
 .ad-card:hover{transform:translateY(-2px);}
-.ad-img{width:100%;height:70px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--muted2);}
+.ad-img{width:100%;height:100px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--muted2);position:relative;overflow:hidden;text-decoration:none;}
+.ad-img img{width:100%;height:100%;object-fit:cover;}
+.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);color:#fff;font-size:24px;opacity:0;transition:opacity .2s;}
+.ad-card:hover .play-overlay{opacity:1;}
 .ad-info{padding:8px 10px;}
 .ad-name{font-size:10px;font-weight:700;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3;color:var(--text);}
 .ad-sub{font-size:8px;color:var(--muted2);opacity:.8;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ad-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;}
+.ad-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:4px;}
 .as-l{font-size:8px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;}
 .as-v{font-size:11px;font-weight:700;font-family:'DM Mono',monospace;}
 
@@ -297,7 +307,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
           <div class="mcamp-list" id="metaCampList"></div>
         </div>
       </div>
-      <div class="krow k4 mb14" id="metaKpis"></div>
+      <div class="krow k6 mb14" id="metaKpis"></div>
       <div class="cc mb14">
         <div class="cc-t">Inversión &amp; CTR diario
           <span class="gran-pills"><button class="gp active" data-g="dia" onclick="setMetaGran('dia',this)">Diario</button><button class="gp" data-g="sem" onclick="setMetaGran('sem',this)">Semanal</button><button class="gp" data-g="mes" onclick="setMetaGran('mes',this)">Mensual</button></span>
@@ -812,120 +822,214 @@ function diaCampApply(){
 
 // ═══ META ADS ═══
 let campSortKey='sp', campSortDir=-1;
+let expandedCamps=new Set(), expandedAdsets=new Set();
 function setCampSort(k){ if(campSortKey===k) campSortDir=-campSortDir; else {campSortKey=k;campSortDir=-1;} renderMeta(); }
+function toggleCamp(id,ev){ ev&&ev.stopPropagation(); expandedCamps.has(id)?expandedCamps.delete(id):expandedCamps.add(id); renderMeta(); }
+function toggleAdset(id,ev){ ev&&ev.stopPropagation(); expandedAdsets.has(id)?expandedAdsets.delete(id):expandedAdsets.add(id); renderMeta(); }
 
-function buildCampaignRows(metaF,hotFMain){
-  const map={};
+function buildSalesIdx(hotRows){
+  const idx={};
+  hotRows.forEach(r=>{
+    const k=(r.uc||'').trim(); if(!k) return;
+    if(!idx[k]) idx[k]={qtd:0,val:0};
+    idx[k].qtd++; idx[k].val=r2(idx[k].val+r.v);
+  });
+  return idx;
+}
+
+function computeMetrics(o,salesIdx){
+  const sp=r2(o.sp), imp=o.imp, lc=o.lc, pv=o.pv, ic=o.ic;
+  const s=salesIdx&&o.n?salesIdx[o.n]:null;
+  const ventas=s?s.qtd:0, rev=s?r2(s.val):0;
+  return {...o,sp,
+    cpm:imp>0?r2(sp/imp*1000):null,
+    ctr:imp>0?r2(lc/imp*100):null,
+    cr:lc>0?r2(pv/lc*100):null,
+    ventas, rev,
+    cpa:ventas>0?r2(sp/ventas):null,
+    roas:(sp>0&&rev>0)?r2(rev/sp):null,
+    txConv:pv>0?r2(ventas/pv*100):null
+  };
+}
+
+function buildHierarchy(metaF,hotPago){
+  // Build 3-level sales index using UTM fields to avoid double-counting
+  // ut=campaign name, um=adset name, uc=ad name
+  const campSales={}, adsetSales={}, adSales={};
+  hotPago.forEach(r=>{
+    const ut=(r.ut||'').trim(), um=(r.um||'').trim(), uc=(r.uc||'').trim();
+    if(ut){ if(!campSales[ut]) campSales[ut]={qtd:0,val:0}; campSales[ut].qtd++; campSales[ut].val=r2(campSales[ut].val+r.v); }
+    if(ut&&um){ const k=ut+'|'+um; if(!adsetSales[k]) adsetSales[k]={qtd:0,val:0}; adsetSales[k].qtd++; adsetSales[k].val=r2(adsetSales[k].val+r.v); }
+    if(ut&&um&&uc){ const k=ut+'|'+um+'|'+uc; if(!adSales[k]) adSales[k]={qtd:0,val:0}; adSales[k].qtd++; adSales[k].val=r2(adSales[k].val+r.v); }
+  });
+  const campMap={};
   metaF.forEach(r=>{
-    if(!map[r.c]) map[r.c]={n:r.c,sp:0,imp:0,lc:0};
-    const o=map[r.c]; o.sp+=r.sp; o.imp+=r.imp; o.lc+=r.lc;
+    if(!campMap[r.c]) campMap[r.c]={adsets:{}};
+    const camp=campMap[r.c];
+    if(!camp.adsets[r.a]) camp.adsets[r.a]={ads:{}};
+    const adset=camp.adsets[r.a];
+    if(!adset.ads[r.an]) adset.ads[r.an]={n:r.an,sp:0,imp:0,lc:0,pv:0,ic:0,th:'',lk:''};
+    const ad=adset.ads[r.an];
+    ad.sp+=r.sp; ad.imp+=r.imp; ad.lc+=r.lc; ad.pv+=r.pv; ad.ic+=r.ic;
+    if(r.th&&!ad.th) ad.th=r.th;
+    if(r.lk&&!ad.lk) ad.lk=r.lk;
   });
-  const salesIdx={};
-  hotFMain.forEach(r=>{
-    const k=(r.ut||'').trim(); if(!k) return;
-    if(!salesIdx[k]) salesIdx[k]={qtd:0,val:0};
-    salesIdx[k].qtd++; salesIdx[k].val=r2(salesIdx[k].val+r.v);
+  function metricsFromAgg(o,ventas,rev){
+    const sp=r2(o.sp);
+    return {...o,sp,
+      cpm:o.imp>0?r2(sp/o.imp*1000):null,
+      ctr:o.imp>0?r2(o.lc/o.imp*100):null,
+      cr:o.lc>0?r2(o.pv/o.lc*100):null,
+      ventas,rev,
+      cpa:ventas>0?r2(sp/ventas):null,
+      roas:(sp>0&&rev>0)?r2(rev/sp):null,
+      txConv:o.pv>0?r2(ventas/o.pv*100):null};
+  }
+  const campaigns=[];
+  Object.entries(campMap).forEach(([cn,cd])=>{
+    const adsets=[];
+    Object.entries(cd.adsets).forEach(([an,ad])=>{
+      const ads=Object.values(ad.ads).map(a=>{
+        const k=cn+'|'+an+'|'+a.n, s=adSales[k];
+        return metricsFromAgg(a, s?s.qtd:0, s?r2(s.val):0);
+      }).sort((a,b)=>b.sp-a.sp);
+      const agg={n:an,sp:0,imp:0,lc:0,pv:0,ic:0};
+      ads.forEach(a=>{agg.sp+=a.sp;agg.imp+=a.imp;agg.lc+=a.lc;agg.pv+=a.pv;agg.ic+=a.ic;});
+      const ask=cn+'|'+an, as=adsetSales[ask];
+      adsets.push({...metricsFromAgg(agg, as?as.qtd:0, as?r2(as.val):0), ads});
+    });
+    adsets.sort((a,b)=>b.sp-a.sp);
+    const agg={n:cn,sp:0,imp:0,lc:0,pv:0,ic:0};
+    adsets.forEach(a=>{agg.sp+=a.sp;agg.imp+=a.imp;agg.lc+=a.lc;agg.pv+=a.pv;agg.ic+=a.ic;});
+    const cs=campSales[cn];
+    campaigns.push({...metricsFromAgg(agg, cs?cs.qtd:0, cs?r2(cs.val):0), adsets});
   });
-  const rows=Object.values(map).map(c=>{
-    const sp=r2(c.sp);
-    const ctr=c.imp>0?r2(c.lc/c.imp*100):null;
-    const cpm=c.imp>0?r2(sp/c.imp*1000):null;
-    const s=salesIdx[c.n];
-    const ventas=s?s.qtd:0, rev=s?r2(s.val):0;
-    const cpa=ventas>0?r2(sp/ventas):null;
-    const roas=(sp>0&&rev>0)?r2(rev/sp):null;
-    return {n:c.n,sp,imp:c.imp,lc:c.lc,ctr,cpm,ventas,rev,cpa,roas};
-  });
-  rows.sort((a,b)=>{
+  campaigns.sort((a,b)=>{
     if(campSortKey==='n') return a.n.localeCompare(b.n)*(campSortDir===-1?1:-1);
     const va=a[campSortKey],vb=b[campSortKey];
     const na=(va==null||isNaN(va))?null:Number(va), nb=(vb==null||isNaN(vb))?null:Number(vb);
     if(na==null&&nb==null) return 0; if(na==null) return 1; if(nb==null) return -1;
     return (nb-na)*(campSortDir===-1?1:-1);
   });
-  return rows;
+  return campaigns;
 }
-function campTableHtml(rows){
-  if(!rows.length) return '<div style="padding:12px;color:var(--muted);font-size:12px">Sin datos en el período</div>';
+
+function drilldownTableHtml(campaigns){
+  if(!campaigns.length) return '<div style="padding:12px;color:var(--muted);font-size:12px">Sin datos en el período</div>';
   const COLS=[
     {k:'sp',l:'Inversión',f:fR},
     {k:'imp',l:'Impr.',f:fN,cls:'cn'},
     {k:'lc',l:'Clics',f:fN,cls:'cn'},
-    {k:'ctr',l:'CTR',f:fP},
+    {k:'pv',l:'PV',f:fN,cls:'cn'},
+    {k:'ic',l:'IC',f:fN,cls:'cn'},
     {k:'cpm',l:'CPM',f:fR,cls2:cpmCls},
-    {k:'ventas',l:'Ventas',f:fN},
-    {k:'rev',l:'Fact.',f:fR,cls:'cg'},
+    {k:'ctr',l:'CTR',f:fP},
+    {k:'cr',l:'C.Rate',f:fP},
+    {k:'ventas',l:'V.UTM',f:fN},
+    {k:'rev',l:'Ingresos',f:fR,cls:'cg'},
     {k:'cpa',l:'CPA',f:fR,cls2:cpaCls},
     {k:'roas',l:'ROAS',f:v=>v!=null?v.toFixed(2)+'x':'—',cls2:roasCls},
+    {k:'txConv',l:'Tx.Conv',f:fP},
   ];
   const ind=k=>campSortKey===k?(campSortDir===-1?' ▼':' ▲'):'';
-  const head=`<tr><th class="th-sort" onclick="setCampSort('n')">Campaña${ind('n')}</th>`+
-    COLS.map(c=>`<th class="num th-sort" onclick="setCampSort('${c.k}')">${c.l}${ind(c.k)}</th>`).join('')+`</tr>`;
-  const rowsHtml=rows.map(r=>`<tr>
-    <td style="font-size:11px;font-weight:600;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escAttr(r.n)}">${r.n}</td>
-    ${COLS.map(c=>{
-      const v=r[c.k]; const cls2=c.cls2?c.cls2(v):''; const cls=c.cls||'';
-      return `<td class="num ${cls} ${cls2}">${c.f(v)}</td>`;
-    }).join('')}
-  </tr>`).join('');
-  return `<table><thead>${head}</thead><tbody>${rowsHtml}</tbody></table>`;
+  const baseHd=`<th class="th-sort" onclick="setCampSort('n')" style="min-width:200px;position:sticky;left:0;z-index:2;background:var(--surface2)">Campaña${ind('n')}</th>`;
+  const head=`<tr>${baseHd}${COLS.map(c=>`<th class="num th-sort" onclick="setCampSort('${c.k}')">${c.l}${ind(c.k)}</th>`).join('')}</tr>`;
+  const rc=r=>COLS.map(c=>{const v=r[c.k];return `<td class="num ${c.cls||''} ${c.cls2?c.cls2(v):''}">${c.f(v)}</td>`;}).join('');
+  let html='';
+  campaigns.forEach((camp,ci)=>{
+    const cid='c'+ci;
+    const isExp=expandedCamps.has(cid);
+    const arrow=camp.adsets.length?`<span class="drill-arrow" onclick="toggleCamp('${cid}',event)">${isExp?'▼':'▶'}</span>`:'';
+    html+=`<tr class="drill-camp"><td style="font-size:11px;font-weight:700;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface)" title="${escAttr(camp.n)}">${arrow}${camp.n}</td>${rc(camp)}</tr>`;
+    if(isExp){
+      camp.adsets.forEach((adset,ai)=>{
+        const aid=cid+'_a'+ai;
+        const isAdExp=expandedAdsets.has(aid);
+        const aArrow=adset.ads.length?`<span class="drill-arrow" onclick="toggleAdset('${aid}',event)">${isAdExp?'▼':'▶'}</span>`:'';
+        html+=`<tr class="drill-adset"><td style="font-size:10px;font-weight:600;padding-left:24px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface2)" title="${escAttr(adset.n)}"><span style="color:var(--muted2);margin-right:3px">↳</span>${aArrow}${adset.n}</td>${rc(adset)}</tr>`;
+        if(isAdExp){
+          adset.ads.forEach(ad=>{
+            html+=`<tr class="drill-ad"><td style="font-size:10px;padding-left:44px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface)" title="${escAttr(ad.n)}"><span style="color:var(--muted2);margin-right:3px">↳</span>${ad.n}</td>${rc(ad)}</tr>`;
+          });
+        }
+      });
+    }
+  });
+  return `<table><thead>${head}</thead><tbody>${html}</tbody></table>`;
 }
 
-function buildAdRows(metaF,hotFMain){
+function buildAdRows(metaF,hotPago){
   const map={};
   metaF.forEach(r=>{
-    if(!map[r.an]) map[r.an]={n:r.an,camp:r.c,adset:r.a,sp:0,imp:0,lc:0};
-    const o=map[r.an]; o.sp+=r.sp; o.imp+=r.imp; o.lc+=r.lc;
+    if(!map[r.an]) map[r.an]={n:r.an,camp:r.c,adset:r.a,sp:0,imp:0,lc:0,pv:0,ic:0,th:'',lk:''};
+    const o=map[r.an]; o.sp+=r.sp; o.imp+=r.imp; o.lc+=r.lc; o.pv+=r.pv; o.ic+=r.ic;
+    if(r.th&&!o.th) o.th=r.th;
+    if(r.lk&&!o.lk) o.lk=r.lk;
   });
-  const salesIdx={};
-  hotFMain.forEach(r=>{
-    const k=(r.uc||'').trim(); if(!k) return;
-    if(!salesIdx[k]) salesIdx[k]={qtd:0,val:0};
-    salesIdx[k].qtd++; salesIdx[k].val=r2(salesIdx[k].val+r.v);
-  });
+  const salesIdx=buildSalesIdx(hotPago);
   return Object.values(map).map(o=>{
     const sp=r2(o.sp);
     const ctr=o.imp>0?r2(o.lc/o.imp*100):null;
-    const cpm=o.imp>0?r2(sp/o.imp*1000):null;
+    const cr=o.lc>0?r2(o.pv/o.lc*100):null;
     const s=salesIdx[o.n];
-    const ventas=s?s.qtd:0;
+    const ventas=s?s.qtd:0, rev=s?r2(s.val):0;
     const cpa=ventas>0?r2(sp/ventas):null;
-    return {...o,sp,ctr,cpm,ventas,cpa};
+    const roas=(sp>0&&rev>0)?r2(rev/sp):null;
+    return {...o,sp,ctr,cr,ventas,rev,cpa,roas};
   }).sort((a,b)=>b.sp-a.sp);
 }
 function renderAds(ads){
   const el=document.getElementById('adsGrid');
   if(!ads.length){el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px">Sin creativos en el período</div>';return;}
-  el.innerHTML=ads.map(ad=>`<div class="ad-card">
-    <div class="ad-img">🎬</div>
-    <div class="ad-info">
-      <div class="ad-name" title="${escAttr(ad.n)}">${ad.n}</div>
-      <div class="ad-sub" title="${escAttr(ad.adset)}">↳ ${ad.adset}</div>
-      <div class="ad-stats">
-        <div><div class="as-l">Inversión</div><div class="as-v">${fR(ad.sp)}</div></div>
-        <div><div class="as-l">CTR</div><div class="as-v">${fP(ad.ctr)}</div></div>
-        <div><div class="as-l">Ventas UTM</div><div class="as-v">${fN(ad.ventas)}</div></div>
-        <div><div class="as-l">CPA</div><div class="as-v ${cpaCls(ad.cpa)}">${fR(ad.cpa)}</div></div>
+  el.innerHTML=ads.map(ad=>{
+    const hasTh=ad.th&&ad.th.length>5;
+    const hasLk=ad.lk&&ad.lk.length>5;
+    const imgInner=hasTh?`<img src="${escAttr(ad.th)}" alt="" loading="lazy">`:'🎬';
+    const playBtn=hasLk?'<span class="play-overlay">▶</span>':'';
+    const imgHtml=hasLk
+      ?`<a href="${escAttr(ad.lk)}" target="_blank" rel="noopener" class="ad-img" title="Ver video">${imgInner}${playBtn}</a>`
+      :`<div class="ad-img">${imgInner}</div>`;
+    return `<div class="ad-card">
+      ${imgHtml}
+      <div class="ad-info">
+        <div class="ad-name" title="${escAttr(ad.n)}">${ad.n}</div>
+        <div class="ad-sub" title="${escAttr(ad.adset)}">↳ ${ad.adset}</div>
+        <div class="ad-stats">
+          <div><div class="as-l">Inversión</div><div class="as-v">${fR(ad.sp)}</div></div>
+          <div><div class="as-l">CTR</div><div class="as-v">${fP(ad.ctr)}</div></div>
+          <div><div class="as-l">C.Rate</div><div class="as-v">${fP(ad.cr)}</div></div>
+          <div><div class="as-l">V.UTM</div><div class="as-v">${fN(ad.ventas)}</div></div>
+          <div><div class="as-l">CPA</div><div class="as-v ${cpaCls(ad.cpa)}">${fR(ad.cpa)}</div></div>
+          <div><div class="as-l">ROAS</div><div class="as-v ${roasCls(ad.roas)}">${ad.roas!=null?ad.roas.toFixed(2)+'x':'—'}</div></div>
+        </div>
       </div>
-    </div>
-  </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function renderMeta(){
   const range=periodRange();
   const metaF=filterMeta(range,metaCampSel);
   const hotFMain=filterHot(range).filter(r=>!r.up);
+  const hotPago=hotFMain.filter(r=>r.uco===PAGO_CAMPAIGN);
 
-  const spend=r2(sum(metaF.map(r=>r.imp?r.sp:r.sp)));
+  const spend=r2(sum(metaF.map(r=>r.sp)));
   const imp=sum(metaF.map(r=>r.imp)), lc=sum(metaF.map(r=>r.lc));
+  const pv=sum(metaF.map(r=>r.pv)), ic=sum(metaF.map(r=>r.ic));
   const ctr=imp>0?r2(lc/imp*100):null;
+  const cr=lc>0?r2(pv/lc*100):null;
+  const cpm=imp>0?r2(spend/imp*1000):null;
+  const ventasPago=hotPago.length;
+  const cpa=ventasPago>0?r2(spend/ventasPago):null;
   document.getElementById('metaKpis').innerHTML=
     kpiCard('Inversión',fR(spend),'#334155')+
-    kpiCard('Impresiones',fN(imp),'#334155')+
-    kpiCard('Clics',fN(lc),'#334155')+
-    kpiCard('CTR',fP(ctr),ctr!=null&&ctr>=CTR_BOM?'#059669':ctr!=null&&ctr>=CTR_MEDIO?'#d97706':'var(--muted)');
+    kpiCard('CPM',fR(cpm),cpm!=null?(cpm<=CPM_BOM?'#059669':cpm<=CPM_MEDIO?'#d97706':'#dc2626'):'var(--muted)')+
+    kpiCard('CTR',fP(ctr),ctr!=null&&ctr>=CTR_BOM?'#059669':ctr!=null&&ctr>=CTR_MEDIO?'#d97706':'var(--muted)')+
+    kpiCard('C.Rate',fP(cr),cr!=null&&cr>=CR_BOM?'#059669':cr!=null&&cr>=CR_MEDIO?'#d97706':'var(--muted)')+
+    kpiCard('Ventas Pago',fN(ventasPago),'#059669',cpa!=null?'CPA '+fR(cpa):'')+
+    kpiCard('ROAS',(spend>0&&ventasPago>0)?r2(hotPago.reduce((s,r)=>s+r.v,0)/spend).toFixed(2)+'x':'—',
+      (spend>0&&ventasPago>0)?(hotPago.reduce((s,r)=>s+r.v,0)/spend>=ROAS_BOM?'#059669':'#d97706'):'var(--muted)');
 
-  // Gráfico: inversión (barras) + CTR (línea)
   const days=[...new Set(metaF.map(r=>r.d))].sort();
   const spByDay={},impByDay={},lcByDay={};
   metaF.forEach(r=>{spByDay[r.d]=(spByDay[r.d]||0)+r.sp;impByDay[r.d]=(impByDay[r.d]||0)+r.imp;lcByDay[r.d]=(lcByDay[r.d]||0)+r.lc;});
@@ -946,9 +1050,9 @@ function renderMeta(){
     }}
   });
 
-  const campRows=buildCampaignRows(metaF,hotFMain);
-  document.getElementById('tCamps').innerHTML=campTableHtml(campRows);
-  renderAds(buildAdRows(metaF,hotFMain));
+  const hierarchy=buildHierarchy(metaF,hotPago);
+  document.getElementById('tCamps').innerHTML=drilldownTableHtml(hierarchy);
+  renderAds(buildAdRows(metaF,hotPago));
   renderMetaCampList();
 }
 
