@@ -949,7 +949,8 @@ function drilldownTableHtml(campaigns){
         html+=`<tr class="drill-adset"><td style="font-size:10px;font-weight:600;padding-left:24px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface2)" title="${escAttr(adset.n)}"><span style="color:var(--muted2);margin-right:3px">↳</span>${aArrow}${adset.n}</td>${rc(adset)}</tr>`;
         if(isAdExp){
           adset.ads.forEach(ad=>{
-            html+=`<tr class="drill-ad"><td style="font-size:10px;padding-left:44px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface)" title="${escAttr(ad.n)}"><span style="color:var(--muted2);margin-right:3px">↳</span>${ad.n}</td>${rc(ad)}</tr>`;
+            const lkBtn=ad.lk?`<a href="${escAttr(ad.lk)}" target="_blank" rel="noopener" style="margin-left:4px;color:var(--accent);text-decoration:none;font-size:11px" title="Ver criativo">↗</a>`:'';
+            html+=`<tr class="drill-ad"><td style="font-size:10px;padding-left:44px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface)" title="${escAttr(ad.n)}"><span style="color:var(--muted2);margin-right:3px">↳</span>${ad.n}${lkBtn}</td>${rc(ad)}</tr>`;
           });
         }
       });
