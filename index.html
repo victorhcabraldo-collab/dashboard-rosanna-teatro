@@ -1014,7 +1014,8 @@ function renderMeta(){
   const range=periodRange();
   const metaF=filterMeta(range,metaCampSel);
   const hotFMain=filterHot(range).filter(r=>!r.up);
-  const hotPago=hotFMain.filter(r=>r.uco===PAGO_CAMPAIGN);
+  let hotPago=hotFMain.filter(r=>r.uco===PAGO_CAMPAIGN);
+  if(metaCampSel&&metaCampSel.size>0) hotPago=hotPago.filter(r=>metaCampSel.has((r.ut||'').trim()));
 
   const spend=r2(sum(metaF.map(r=>r.sp)));
   const imp=sum(metaF.map(r=>r.imp)), lc=sum(metaF.map(r=>r.lc));
