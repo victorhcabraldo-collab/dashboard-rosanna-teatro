@@ -9,7 +9,7 @@ MAX_RETRIES = 3
 
 def fetch_with_redirects(url, max_redirects=5):
     for _ in range(max_redirects):
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (compatible; DashboardBuilder/1.0)'})
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
         try:
             resp = urllib.request.urlopen(req, timeout=120)
             return resp.read().decode('utf-8')
