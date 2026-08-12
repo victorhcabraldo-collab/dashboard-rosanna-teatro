@@ -1,15 +1,39 @@
 # -*- coding: utf-8 -*-
-import re, sys, json, urllib.request, os
+import re, sys, json, urllib.request, os, time
 
 APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLhWmSBgvuB_UxKx1ZxoDhFBjP-tqxSqdpGlWrcOpXJExRbigyqb1vFlamxBO38EXyLw/exec'
 DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE = os.path.join(DIR, 'template.html')
 OUTPUT = os.path.join(DIR, 'index.html')
+MAX_RETRIES = 3
+
+def fetch_with_redirects(url, max_redirects=5):
+    for _ in range(max_redirects):
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (compatible; DashboardBuilder/1.0)'})
+        try:
+            resp = urllib.request.urlopen(req, timeout=120)
+            return resp.read().decode('utf-8')
+        except urllib.error.HTTPError as e:
+            if e.code in (301, 302, 307, 308):
+                url = e.headers.get('Location', url)
+                continue
+            raise
+    raise Exception('Too many redirects')
 
 print('Fetching data from Apps Script...')
-req = urllib.request.Request(APPS_SCRIPT_URL, headers={'User-Agent': 'DashboardBuilder/1.0'})
-resp = urllib.request.urlopen(req, timeout=120)
-data = json.loads(resp.read().decode('utf-8'))
+data = None
+for attempt in range(1, MAX_RETRIES + 1):
+    try:
+        raw = fetch_with_redirects(APPS_SCRIPT_URL)
+        data = json.loads(raw)
+        break
+    except Exception as e:
+        print(f'  Attempt {attempt}/{MAX_RETRIES} failed: {e}')
+        if attempt < MAX_RETRIES:
+            time.sleep(15)
+if data is None:
+    print('ERROR: All fetch attempts failed')
+    sys.exit(1)
 
 if 'error' in data:
     print(f'ERROR: {data["error"]}')
