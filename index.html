@@ -351,7 +351,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <button class="pb" onclick="setLiveFilter(3,this)">Live 3</button>
         <button class="pb" onclick="setLiveFilter(4,this)">Live 4</button>
       </div>
-      <div class="krow k6 mb14" id="livesKpis"></div>
+      <div class="krow k5 mb14" id="livesKpis"></div>
       <div class="sec-block mb14">
         <div class="sec-hdr"><span class="sec-ttl">Comparativo por Live</span></div>
         <div class="tc" id="livesCompTable"></div>
@@ -1123,7 +1123,6 @@ function renderLives(){
     kpiCard('Inversión',fR(sp),'#334155')+
     kpiCard('Leads',fN(pv),'#059669')+
     kpiCard('CPL',fR(cpl),cpl!=null?(cpl<=2?'#059669':cpl<=5?'#d97706':'#dc2626'):'var(--muted)')+
-    kpiCard('Impresiones',fN(imp),'var(--muted)')+
     kpiCard('CTR',fP(ctr),ctr!=null&&ctr>=2?'#059669':ctr!=null&&ctr>=1?'#d97706':'var(--muted)')+
     kpiCard('C.Rate',fP(cr),cr!=null&&cr>=50?'#059669':cr!=null&&cr>=30?'#d97706':'var(--muted)');
 
