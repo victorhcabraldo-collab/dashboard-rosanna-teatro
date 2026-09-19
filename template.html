@@ -193,7 +193,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .overlay.open{display:block;}
 @media(max-width:768px){
   .topbar{left:0;right:0;z-index:299!important;}
-  .content{padding-top:172px!important;}
+  .content{padding-top:172px;}
   .app{grid-template-columns:1fr;}
   .sb{display:none;position:fixed;top:0;left:0;width:240px;height:100vh;z-index:400!important;}
   .sb.open{display:flex;}
@@ -220,10 +220,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div><div class="logo-name" id="sbNome">Rosanna Biglia</div><div class="logo-sub">Lanzamiento</div></div>
   </div>
   <nav class="sb-nav">
-    <button class="sb-item active" onclick="goPage('overview',this)"><span class="ico">📊</span>Overview</button>
-    <button class="sb-item" onclick="goPage('meta',this)"><span class="ico">🎯</span>Meta Ads</button>
-    <button class="sb-item" onclick="goPage('lives',this)"><span class="ico">🔴</span>Lives</button>
-    <button class="sb-item" onclick="goPage('diario',this)"><span class="ico">📈</span>Métricas Diarias</button>
+    <button class="sb-item active" onclick="goPage('lives',this)"><span class="ico">🔴</span>Lives</button>
+    <button class="sb-item" onclick="goPage('overview',this)"><span class="ico">📊</span>Overview</button>
   </nav>
   <div class="sb-lct"><div class="sb-lct-lbl">Lanzamiento</div><div class="sb-lct-val" id="sbLct">—</div></div>
   <div class="sb-footer"><span id="sbAtual">--/--/---- · Meta Ads + Hotmart</span></div>
@@ -254,7 +252,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <button class="pb" onclick="setProdFilter('pres',this)">Presencial</button>
         <button class="pb" onclick="setProdFilter('online',this)">Online</button>
       </div>
-      <button class="pago-toggle" id="pagoBtn" onclick="togglePago()"><span id="pagoIco">○</span> Solo Tráfico Pago</button>
       <button class="theme-btn" onclick="toggleLang()" id="langBtn">ES | PT</button>
       <button class="theme-btn" onclick="toggleTheme()"><span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span></button>
     </div>
@@ -263,7 +260,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div class="content">
 
     <!-- OVERVIEW -->
-    <div class="page-section active" id="page-overview">
+    <div class="page-section" id="page-overview">
       <div class="krow k6 mb14" id="ovKpis"></div>
       <div class="funnel-card">
         <div class="funnel-title" id="funnelTitle">Análisis del Embudo (Meta Ads → Compras Hotmart)</div>
@@ -290,60 +287,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <div class="cc"><div class="cc-s" id="ccProdutoSub">período seleccionado · el upsell suma a la Facturación/ROAS general</div><div id="tPorProduto"></div></div>
       </div>
 
-      <div class="section">
-        <div class="sec-hd" id="ovUtmTitle">Ventas por UTM</div>
-        <div class="cc-s" style="margin:-4px 0 10px" id="ovUtmSub">Desglose de las ventas Hotmart del período por parámetro de tracking</div>
-        <div class="utm-grid" id="utmTables"></div>
-      </div>
-    </div>
-
-    <!-- META ADS -->
-    <div class="page-section" id="page-meta">
-      <div class="mcamp-wrap left" id="metaCampWrap">
-        <button class="mcamp-btn" id="metaCampBtn" onclick="toggleMetaCampDD(event)">Campañas ▾</button>
-        <span class="mcamp-chip" id="metaCampChip" style="display:none"></span>
-        <div class="mcamp-dd left" id="metaCampDD" onclick="event.stopPropagation()">
-          <input class="mcamp-search" id="metaCampSearch" placeholder="Buscar campaña..." oninput="renderMetaCampList()">
-          <div class="mcamp-list" id="metaCampList"></div>
-        </div>
-      </div>
-      <div class="krow k6 mb14" id="metaKpis"></div>
-      <div class="cc mb14">
-        <div class="cc-t">Inversión &amp; CTR diario
-          <span class="gran-pills"><button class="gp active" data-g="dia" onclick="setMetaGran('dia',this)">Diario</button><button class="gp" data-g="sem" onclick="setMetaGran('sem',this)">Semanal</button><button class="gp" data-g="mes" onclick="setMetaGran('mes',this)">Mensual</button></span>
-        </div>
-        <div class="cc-s">Inversión (barras violeta) · CTR % (línea negra punteada)</div>
-        <div class="cw" style="height:220px"><canvas id="chMetaMain"></canvas></div>
-      </div>
-      <div class="section">
-        <div class="sec-hd">Campañas</div>
-        <div class="tc" id="tCamps"></div>
-      </div>
-      <div class="section" style="margin-top:16px">
-        <div class="sec-hd">Ranking de Creativos</div>
-        <div class="cc-s" style="margin:-4px 0 10px">Ordenado por inversión · Ventas UTM = ventas Hotmart atribuidas al anuncio (utm_content)</div>
-        <div class="ads-grid" id="adsGrid"></div>
-      </div>
-    </div>
-
-    <!-- MÉTRICAS DIÁRIAS -->
-    <div class="page-section" id="page-diario">
-      <div class="dia-toolbar">
-        <div class="mcamp-wrap left" id="diaCampWrap">
-          <button class="mcamp-btn" id="diaCampBtn" onclick="toggleDiaCampDD(event)">Campañas ▾</button>
-          <div class="mcamp-dd left" id="diaCampDD" onclick="event.stopPropagation()">
-            <input class="mcamp-search" id="diaCampSearch" placeholder="Buscar campaña..." oninput="renderDiaCampList()">
-            <div class="mcamp-list" id="diaCampList"></div>
-          </div>
-          <span class="mcamp-chip" id="diaCampChip" style="display:none"></span>
-        </div>
-        <span class="gran-pills"><button class="gp active" data-g="dia" onclick="setDiaGran('dia',this)">Diario</button><button class="gp" data-g="sem" onclick="setDiaGran('sem',this)">Semanal</button><button class="gp" data-g="mes" onclick="setDiaGran('mes',this)">Mensual</button></span>
-      </div>
-      <div id="dailyCharts"></div>
     </div>
 
     <!-- LIVES -->
-    <div class="page-section" id="page-lives">
+    <div class="page-section active" id="page-lives">
       <div style="display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap" id="liveFilterBar">
         <button class="pb active" onclick="setLiveFilter(0,this)">Todas</button>
         <button class="pb" onclick="setLiveFilter(1,this)">Live 1</button>
@@ -360,6 +307,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <div class="sec-hdr"><span class="sec-ttl">Campañas</span><span class="sec-sub">Detalle con drill-down · campaña → conjunto → anuncio</span></div>
         <div class="tc" id="livesCampTable"></div>
       </div>
+      <div class="sec-block mb14">
+        <div class="sec-hdr"><span class="sec-ttl">Públicos</span><span class="sec-sub">Ranking por conjunto de anuncios</span></div>
+        <div class="tc" id="livesAdsetTable"></div>
+      </div>
+      <div class="sec-block mb14">
+        <div class="sec-hdr"><span class="sec-ttl">Anuncios</span><span class="sec-sub">Ranking por anuncio individual</span></div>
+        <div class="tc" id="livesAdTable"></div>
+      </div>
     </div>
 
 
@@ -371,6 +326,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 // ═══ DATA ═══
 const META_ROWS = [];
 const HOT_ROWS = [];
+const LL_ROWS = [];
 
 // ═══ CONFIG ═══
 const NOME_CLIENTE   = "Rosanna Biglia";
@@ -690,8 +646,6 @@ function renderOverview(){
   document.getElementById('tPorProduto').innerHTML=productTableHtml(hotF);
   document.getElementById('ccProdutoSub').textContent=`${periodLabelTxt()} · ${t('prodSub')}`;
 
-  // ── UTM tables ──
-  document.getElementById('utmTables').innerHTML=buildUtmTables(hotF,metaF);
 }
 
 function productTableHtml(hotF){
@@ -1077,11 +1031,14 @@ function renderMeta(){
 const LIVE_SPLIT_DATE='2026-08-28';
 let liveFilterSel=0;
 let liveExpandedCamps=new Set(), liveExpandedAdsets=new Set();
+var liveAdsetSort={col:'cpl',asc:true}, liveAdSort={col:'cpl',asc:true}, liveCampSort={col:'cpl',asc:true};
 
 function classifyLive(campName){
   const cu=campName.toUpperCase();
   if(cu.indexOf('LIVE4-')!==-1) return 4;
   if(cu.indexOf('LIVE3-')!==-1) return 3;
+  if(cu.indexOf('LIVE2-')!==-1) return 2;
+  if(cu.indexOf('LIVE1-')!==-1) return 1;
   if(cu.indexOf('LIVE-')!==-1||cu.indexOf('-LIVE-')!==-1){
     const dm=campName.match(/(\d{4}-\d{2}-\d{2})$/);
     if(dm){return dm[1]<LIVE_SPLIT_DATE?1:2;}
@@ -1096,6 +1053,13 @@ function liveType(campName){
   if(cu.indexOf('LEAD')!==-1) return 'lead';
   return 'other';
 }
+function normLiveName(n){return n.replace(/LIVE[12]-/gi,'LIVE-');}
+function displayLiveName(n){
+  const ln=classifyLive(n);
+  if(ln===1&&n.toUpperCase().indexOf('LIVE1-')===-1) return n.replace(/LIVE-/i,'LIVE1-');
+  if(ln===2&&n.toUpperCase().indexOf('LIVE2-')===-1) return n.replace(/LIVE-/i,'LIVE2-');
+  return n;
+}
 
 function setLiveFilter(n,btn){
   liveFilterSel=n;
@@ -1107,47 +1071,69 @@ function setLiveFilter(n,btn){
 function toggleLiveCamp(id,ev){ev&&ev.stopPropagation();liveExpandedCamps.has(id)?liveExpandedCamps.delete(id):liveExpandedCamps.add(id);renderLives();}
 function toggleLiveAdset(id,ev){ev&&ev.stopPropagation();liveExpandedAdsets.has(id)?liveExpandedAdsets.delete(id):liveExpandedAdsets.add(id);renderLives();}
 
+function buildLeadsLookup(range){
+  const llF=LL_ROWS.filter(r=>inRange(r.d,range)&&r.ld>0);
+  const byCamp={}, byAd={};
+  llF.forEach(r=>{
+    const ck=normLiveName(r.c);
+    byCamp[ck]=(byCamp[ck]||0)+r.ld;
+    const ak=normLiveName(r.c)+'|'+r.an;
+    byAd[ak]=(byAd[ak]||0)+r.ld;
+  });
+  return {byCamp,byAd,total:llF.reduce((s,r)=>s+r.ld,0)};
+}
+function llLeadsByCamp(range,liveNum){
+  const llF=LL_ROWS.filter(r=>inRange(r.d,range)&&r.ld>0&&isLiveCamp(r.c)&&(liveNum===0||classifyLive(r.c)===liveNum));
+  return llF.reduce((s,r)=>s+r.ld,0);
+}
+
 function renderLives(){
   const range=periodRange();
   let metaF=META_ROWS.filter(r=>inRange(r.d,range)&&isLiveCamp(r.c));
   if(liveFilterSel>0) metaF=metaF.filter(r=>classifyLive(r.c)===liveFilterSel);
 
+  const llLookup=buildLeadsLookup(range);
   const sp=r2(sum(metaF.map(r=>r.sp)));
   const imp=sum(metaF.map(r=>r.imp)), lc=sum(metaF.map(r=>r.lc));
-  const pv=sum(metaF.map(r=>r.pv));
-  const cpl=pv>0?r2(sp/pv):null;
+  const leadF=metaF.filter(r=>liveType(r.c)!=='viewlive');
+  const lcLead=sum(leadF.map(r=>r.lc));
+  const pvLead=sum(leadF.map(r=>r.pv));
+  const leads=llLeadsByCamp(range,liveFilterSel);
+  const cpl=leads>0?r2(sp/leads):null;
   const ctr=imp>0?r2(lc/imp*100):null;
-  const cr=lc>0?r2(pv/lc*100):null;
+  const cr=lcLead>0?r2(pvLead/lcLead*100):null;
 
   document.getElementById('livesKpis').innerHTML=
     kpiCard('Inversión',fR(sp),'#334155')+
-    kpiCard('Leads',fN(pv),'#059669')+
+    kpiCard('Leads',fN(leads),'#059669')+
     kpiCard('CPL',fR(cpl),cpl!=null?(cpl<=2?'#059669':cpl<=5?'#d97706':'#dc2626'):'var(--muted)')+
     kpiCard('CTR',fP(ctr),ctr!=null&&ctr>=2?'#059669':ctr!=null&&ctr>=1?'#d97706':'var(--muted)')+
     kpiCard('C.Rate',fP(cr),cr!=null&&cr>=50?'#059669':cr!=null&&cr>=30?'#d97706':'var(--muted)');
 
   // Comparison table (all lives)
-  const livesMap={1:{n:'Live 1',sp:0,imp:0,lc:0,pv:0},2:{n:'Live 2',sp:0,imp:0,lc:0,pv:0},3:{n:'Live 3',sp:0,imp:0,lc:0,pv:0},4:{n:'Live 4',sp:0,imp:0,lc:0,pv:0}};
+  const livesMap={1:{n:'Live 1',sp:0,imp:0,lc:0,lcLead:0,pvLead:0,ld:0},2:{n:'Live 2',sp:0,imp:0,lc:0,lcLead:0,pvLead:0,ld:0},3:{n:'Live 3',sp:0,imp:0,lc:0,lcLead:0,pvLead:0,ld:0},4:{n:'Live 4',sp:0,imp:0,lc:0,lcLead:0,pvLead:0,ld:0}};
   const allLiveRows=META_ROWS.filter(r=>inRange(r.d,range)&&isLiveCamp(r.c));
   allLiveRows.forEach(r=>{
     const ln=classifyLive(r.c); if(!ln) return;
-    const l=livesMap[ln]; l.sp+=r.sp; l.imp+=r.imp; l.lc+=r.lc; l.pv+=r.pv;
+    const l=livesMap[ln]; l.sp+=r.sp; l.imp+=r.imp; l.lc+=r.lc;
+    if(liveType(r.c)!=='viewlive'){l.lcLead+=r.lc; l.pvLead+=r.pv;}
   });
-  const livesArr=Object.values(livesMap).filter(l=>l.imp>0);
+  [1,2,3,4].forEach(ln=>{livesMap[ln].ld=llLeadsByCamp(range,ln);});
+  const livesArr=Object.values(livesMap).filter(l=>l.imp>0||l.ld>0);
   const CCOLS=[{k:'sp',l:'Inversión',f:fR},{k:'imp',l:'Impr.',f:fN},{k:'leads',l:'Leads',f:fN,cls:'cg'},{k:'cpl',l:'CPL',f:fR},{k:'ctr',l:'CTR',f:fP},{k:'cr',l:'C.Rate',f:fP}];
   let thtml='<table><thead><tr><th style="min-width:80px">Live</th>';
   CCOLS.forEach(c=>{thtml+=`<th class="num">${c.l}</th>`;});
   thtml+='</tr></thead><tbody>';
   livesArr.forEach(l=>{
     const s=r2(l.sp);
-    const row={sp:s,imp:l.imp,leads:l.pv,cpl:l.pv>0?r2(s/l.pv):null,ctr:l.imp>0?r2(l.lc/l.imp*100):null,cr:l.lc>0?r2(l.pv/l.lc*100):null};
+    const row={sp:s,imp:l.imp,leads:l.ld,cpl:l.ld>0?r2(s/l.ld):null,ctr:l.imp>0?r2(l.lc/l.imp*100):null,cr:l.lcLead>0?r2(l.pvLead/l.lcLead*100):null};
     const hl=liveFilterSel>0&&l.n==='Live '+liveFilterSel?' style="background:var(--accent)11"':'';
     thtml+=`<tr${hl}><td style="font-weight:700;font-family:'Syne',sans-serif">${l.n}</td>`;
     CCOLS.forEach(c=>{thtml+=`<td class="num ${c.cls||''}">${c.f(row[c.k])}</td>`;});
     thtml+='</tr>';
   });
-  const tSp=r2(livesArr.reduce((s,l)=>s+l.sp,0)), tPv=livesArr.reduce((s,l)=>s+l.pv,0), tImp=livesArr.reduce((s,l)=>s+l.imp,0), tLc=livesArr.reduce((s,l)=>s+l.lc,0);
-  const totRow={sp:tSp,imp:tImp,leads:tPv,cpl:tPv>0?r2(tSp/tPv):null,ctr:tImp>0?r2(tLc/tImp*100):null,cr:tLc>0?r2(tPv/tLc*100):null};
+  const tSp=r2(livesArr.reduce((s,l)=>s+l.sp,0)), tLd=livesArr.reduce((s,l)=>s+l.ld,0), tImp=livesArr.reduce((s,l)=>s+l.imp,0), tLc=livesArr.reduce((s,l)=>s+l.lc,0), tLcLead=livesArr.reduce((s,l)=>s+(l.lcLead||0),0), tPvLead=livesArr.reduce((s,l)=>s+(l.pvLead||0),0);
+  const totRow={sp:tSp,imp:tImp,leads:tLd,cpl:tLd>0?r2(tSp/tLd):null,ctr:tImp>0?r2(tLc/tImp*100):null,cr:tLcLead>0?r2(tPvLead/tLcLead*100):null};
   thtml+=`<tr style="font-weight:700;border-top:2px solid var(--border)"><td style="font-family:'Syne',sans-serif">Total</td>`;
   CCOLS.forEach(c=>{thtml+=`<td class="num ${c.cls||''}">${c.f(totRow[c.k])}</td>`;});
   thtml+='</tr></tbody></table>';
@@ -1160,45 +1146,77 @@ function renderLives(){
     const camp=campMap[r.c];
     if(!camp.adsets[r.a]) camp.adsets[r.a]={ads:{}};
     const adset=camp.adsets[r.a];
-    if(!adset.ads[r.an]) adset.ads[r.an]={n:r.an,sp:0,imp:0,lc:0,pv:0,ic:0,th:'',lk:''};
+    if(!adset.ads[r.an]) adset.ads[r.an]={n:r.an,sp:0,imp:0,lc:0,pv:0,ld:0,th:'',lk:''};
     const ad=adset.ads[r.an];
-    ad.sp+=r.sp; ad.imp+=r.imp; ad.lc+=r.lc; ad.pv+=r.pv; ad.ic+=r.ic;
+    ad.sp+=r.sp; ad.imp+=r.imp; ad.lc+=r.lc; ad.pv+=r.pv;
     if(r.th&&!ad.th) ad.th=r.th;
     if(r.lk&&!ad.lk) ad.lk=r.lk;
+    ad.ld+=(llLookup.byAd[r.c+'|'+r.an]||0);
+  });
+  // Deduplicate ad-level leads (lookup already aggregated, avoid re-adding per meta row)
+  Object.values(campMap).forEach(camp=>{
+    Object.values(camp.adsets).forEach(adset=>{
+      const seen=new Set();
+      Object.entries(adset.ads).forEach(([k,ad])=>{
+        const ak=ad._camp+'|'+k;
+        if(!seen.has(k)){seen.add(k);} else {ad.ld=0;}
+      });
+    });
+  });
+  // Re-assign leads from LL lookup at ad level (once per unique ad)
+  Object.entries(campMap).forEach(([cn,camp])=>{
+    Object.values(camp.adsets).forEach(adset=>{
+      Object.values(adset.ads).forEach(ad=>{
+        ad.ld=llLookup.byAd[normLiveName(cn)+'|'+ad.n]||0;
+      });
+    });
   });
   function liveMetrics(o){
     const s=r2(o.sp);
-    return {...o,sp:s,cpl:o.pv>0?r2(s/o.pv):null,ctr:o.imp>0?r2(o.lc/o.imp*100):null,cr:o.lc>0?r2(o.pv/o.lc*100):null};
+    return {...o,sp:s,cpl:o.ld>0?r2(s/o.ld):null,ctr:o.imp>0?r2(o.lc/o.imp*100):null,cr:o.lc>0?r2(o.pv/o.lc*100):null};
   }
   const campaigns=[];
   Object.entries(campMap).forEach(([cn,cd])=>{
     const adsets=[];
     Object.entries(cd.adsets).forEach(([an,ad])=>{
       const ads=Object.values(ad.ads).map(a=>liveMetrics(a)).sort((a,b)=>b.sp-a.sp);
-      const agg={n:an,sp:0,imp:0,lc:0,pv:0,ic:0};
-      ads.forEach(a=>{agg.sp+=a.sp;agg.imp+=a.imp;agg.lc+=a.lc;agg.pv+=a.pv;agg.ic+=a.ic;});
+      const agg={n:an,sp:0,imp:0,lc:0,pv:0,ld:0};
+      ads.forEach(a=>{agg.sp+=a.sp;agg.imp+=a.imp;agg.lc+=a.lc;agg.pv+=a.pv;agg.ld+=a.ld;});
       adsets.push({...liveMetrics(agg),ads});
     });
     adsets.sort((a,b)=>b.sp-a.sp);
-    const agg={n:cn,sp:0,imp:0,lc:0,pv:0,ic:0};
-    adsets.forEach(a=>{agg.sp+=a.sp;agg.imp+=a.imp;agg.lc+=a.lc;agg.pv+=a.pv;agg.ic+=a.ic;});
+    const agg={n:cn,sp:0,imp:0,lc:0,pv:0,ld:0};
+    adsets.forEach(a=>{agg.sp+=a.sp;agg.imp+=a.imp;agg.lc+=a.lc;agg.pv+=a.pv;agg.ld+=a.ld;});
+    const campLeads=llLookup.byCamp[normLiveName(cn)]||0;
+    agg.ld=campLeads;
     campaigns.push({...liveMetrics(agg),adsets});
   });
-  campaigns.sort((a,b)=>b.sp-a.sp);
+  const csc=liveCampSort.col, csa=liveCampSort.asc;
+  campaigns.sort((a,b)=>{
+    let va=a[csc],vb=b[csc];
+    if(va==null) va=csa?Infinity:-Infinity;
+    if(vb==null) vb=csa?Infinity:-Infinity;
+    return csa?va-vb:vb-va;
+  });
 
   // Render drill-down
-  const DCOLS=[{k:'sp',l:'Inversión',f:fR},{k:'imp',l:'Impr.',f:fN},{k:'lc',l:'Clics',f:fN},{k:'pv',l:'Leads (PV)',f:fN,cls:'cg'},{k:'cpl',l:'CPL',f:fR},{k:'ctr',l:'CTR',f:fP},{k:'cr',l:'C.Rate',f:fP}];
+  const DCOLS=[{k:'sp',l:'Inversión',f:fR},{k:'imp',l:'Impr.',f:fN},{k:'lc',l:'Clics',f:fN},{k:'ld',l:'Leads',f:fN,cls:'cg'},{k:'cpl',l:'CPL',f:fR},{k:'ctr',l:'CTR',f:fP},{k:'cr',l:'C.Rate',f:fP}];
   const drc=r=>DCOLS.map(c=>{const v=r[c.k];return `<td class="num ${c.cls||''}">${c.f(v)}</td>`;}).join('');
   if(!campaigns.length){document.getElementById('livesCampTable').innerHTML='<div style="padding:12px;color:var(--muted);font-size:12px">Sin datos en el período</div>';return;}
   let dhtml='<table><thead><tr><th style="min-width:200px;position:sticky;left:0;z-index:2;background:var(--surface2)">Campaña</th>';
-  DCOLS.forEach(c=>{dhtml+=`<th class="num">${c.l}</th>`;});
+  DCOLS.forEach(c=>{
+    const arrow=csc===c.k?(csa?' ↑':' ↓'):'';
+    const active=csc===c.k?' style="color:var(--accent);cursor:pointer"':' style="cursor:pointer"';
+    dhtml+=`<th class="num"${active} onclick="sortLiveTable('liveCampSort','${c.k}')">${c.l}${arrow}</th>`;
+  });
   dhtml+='</tr></thead><tbody>';
   campaigns.forEach((camp,ci)=>{
     const cid='lc'+ci;
     const isExp=liveExpandedCamps.has(cid);
     const arrow=camp.adsets.length?`<span class="drill-arrow" onclick="toggleLiveCamp('${cid}',event)">${isExp?'▼':'▶'}</span>`:'';
+    const dn=displayLiveName(camp.n);
     const liveTag=liveFilterSel===0?`<span style="font-size:9px;color:var(--accent);margin-left:4px">L${classifyLive(camp.n)}</span>`:'';
-    dhtml+=`<tr class="drill-camp"><td style="font-size:11px;font-weight:700;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface)" title="${escAttr(camp.n)}">${arrow}${camp.n}${liveTag}</td>${drc(camp)}</tr>`;
+    dhtml+=`<tr class="drill-camp"><td style="font-size:11px;font-weight:700;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface)" title="${escAttr(dn)}">${arrow}${dn}${liveTag}</td>${drc(camp)}</tr>`;
     if(isExp){
       camp.adsets.forEach((adset,ai)=>{
         const aid=cid+'_a'+ai;
@@ -1216,6 +1234,67 @@ function renderLives(){
   });
   dhtml+='</tbody></table>';
   document.getElementById('livesCampTable').innerHTML=dhtml;
+
+  // ── Públicos (adset ranking) ──
+  const adsetMap={};
+  metaF.forEach(r=>{
+    if(!adsetMap[r.a]) adsetMap[r.a]={n:r.a,sp:0,imp:0,lc:0,pv:0,ld:0};
+    const a=adsetMap[r.a]; a.sp+=r.sp; a.imp+=r.imp; a.lc+=r.lc; a.pv+=r.pv;
+  });
+  Object.entries(adsetMap).forEach(([an,a])=>{
+    const llF=LL_ROWS.filter(r=>inRange(r.d,range)&&r.ld>0&&r.a===an&&isLiveCamp(r.c)&&(liveFilterSel===0||classifyLive(r.c)===liveFilterSel));
+    a.ld=llF.reduce((s,r)=>s+r.ld,0);
+  });
+  const adsetArr=Object.values(adsetMap).map(o=>liveMetrics(o)).filter(o=>o.sp>0);
+  renderSortableTable('livesAdsetTable',adsetArr,liveAdsetSort,'liveAdsetSort');
+
+  // ── Anuncios (ad ranking) ──
+  const adMap={};
+  metaF.forEach(r=>{
+    if(!adMap[r.an]) adMap[r.an]={n:r.an,sp:0,imp:0,lc:0,pv:0,ld:0,th:'',lk:''};
+    const a=adMap[r.an]; a.sp+=r.sp; a.imp+=r.imp; a.lc+=r.lc; a.pv+=r.pv;
+    if(r.th&&!a.th) a.th=r.th; if(r.lk&&!a.lk) a.lk=r.lk;
+  });
+  Object.entries(adMap).forEach(([an,a])=>{
+    const llF=LL_ROWS.filter(r=>inRange(r.d,range)&&r.ld>0&&r.an===an&&isLiveCamp(r.c)&&(liveFilterSel===0||classifyLive(r.c)===liveFilterSel));
+    a.ld=llF.reduce((s,r)=>s+r.ld,0);
+  });
+  const adArr=Object.values(adMap).map(o=>liveMetrics(o)).filter(o=>o.sp>0);
+  renderSortableTable('livesAdTable',adArr,liveAdSort,'liveAdSort');
+}
+
+function sortLiveTable(stateVar,col){
+  const st=window[stateVar];
+  if(st.col===col) st.asc=!st.asc;
+  else{st.col=col;st.asc=col==='cpl'||col==='ctr'||col==='cr';}
+  renderLives();
+}
+
+function renderSortableTable(elId,rows,sortState,stateVar){
+  const SCOLS=[{k:'sp',l:'Inversión',f:fR},{k:'imp',l:'Impr.',f:fN},{k:'lc',l:'Clics',f:fN},{k:'pv',l:'PV',f:fN},{k:'ld',l:'Leads',f:fN,cls:'cg'},{k:'cpl',l:'CPL',f:fR},{k:'ctr',l:'CTR',f:fP},{k:'cr',l:'C.Rate',f:fP}];
+  const sc=sortState.col, sa=sortState.asc;
+  rows.sort((a,b)=>{
+    let va=a[sc],vb=b[sc];
+    if(va==null) va=sa?Infinity:-Infinity;
+    if(vb==null) vb=sa?Infinity:-Infinity;
+    return sa?va-vb:vb-va;
+  });
+  if(!rows.length){document.getElementById(elId).innerHTML='<div style="padding:12px;color:var(--muted);font-size:12px">Sin datos</div>';return;}
+  let h='<table><thead><tr><th style="min-width:200px;position:sticky;left:0;z-index:2;background:var(--surface2)">#</th>';
+  SCOLS.forEach(c=>{
+    const arrow=sc===c.k?(sa?' ↑':' ↓'):'';
+    const active=sc===c.k?' style="color:var(--accent);cursor:pointer"':' style="cursor:pointer"';
+    h+=`<th class="num"${active} onclick="sortLiveTable('${stateVar}','${c.k}')">${c.l}${arrow}</th>`;
+  });
+  h+='</tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    const lkBtn=r.lk?`<a href="${escAttr(r.lk)}" target="_blank" rel="noopener" style="margin-left:4px;color:var(--accent);text-decoration:none;font-size:11px" title="Ver criativo">↗</a>`:'';
+    h+=`<tr><td style="font-size:10px;font-weight:600;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;z-index:1;background:var(--surface)" title="${escAttr(r.n)}">${i+1}. ${r.n}${lkBtn}</td>`;
+    SCOLS.forEach(c=>{h+=`<td class="num ${c.cls||''}">${c.f(r[c.k])}</td>`;});
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById(elId).innerHTML=h;
 }
 
 // ═══ MÉTRICAS DIARIAS ═══
@@ -1306,13 +1385,12 @@ function applyLang(){
   if(bs[5])bs[5].textContent=t('todo');
   const ps=document.querySelectorAll('#prodFilter .pb');
   if(ps[0])ps[0].textContent=t('todos');
-  document.getElementById('pagoBtn').innerHTML='<span id=\"pagoIco\">'+(showPagoOnly?'●':'○')+'</span> '+t('soloPago');
   document.getElementById('themeLabel').textContent=DARK()?t('claro'):t('oscuro');
   document.querySelectorAll('.sb-item').forEach((b,i)=>{
-    const keys=['overview','metaAds','lives','metDiarias'];
+    const keys=['lives','overview'];
     if(keys[i]) b.innerHTML=b.querySelector('.ico').outerHTML+t(keys[i]);
   });
-  const titles={overview:t('overview'),meta:t('metaAds'),diario:t('metDiarias')};
+  const titles={overview:t('overview'),lives:t('lives')};
   const cur=document.querySelector('.page-section.active')?.id?.replace('page-','');
   if(cur&&titles[cur]) document.getElementById('pageTitle').textContent=titles[cur];
   document.querySelector('.logo-sub').textContent=t('lanzamiento');
@@ -1365,8 +1443,7 @@ function clearDates(){
 function rerenderActive(){
   const p=document.querySelector('.page-section.active')?.id?.replace('page-','');
   if(p==='overview') renderOverview();
-  if(p==='meta') renderMeta();
-  if(p==='diario') renderDiarioCharts();
+  if(p==='lives') renderLives();
   setTimeout(()=>{Object.values(CH).forEach(c=>{try{c.resize();}catch(e){}});},60);
 }
 
@@ -1375,12 +1452,10 @@ function goPage(p,btn){
   document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   if(btn) btn.classList.add('active');
-  const titles={overview:t('overview'),meta:t('metaAds'),lives:t('lives'),diario:t('metDiarias')};
+  const titles={overview:t('overview'),lives:t('lives')};
   document.getElementById('pageTitle').textContent=titles[p]||p;
   if(p==='overview') renderOverview();
-  if(p==='meta') renderMeta();
   if(p==='lives') renderLives();
-  if(p==='diario') renderDiario();
   setTimeout(()=>{Object.values(CH).forEach(c=>{try{c.resize();}catch(e){}});},80);
   if(window.innerWidth<=768) closeSb();
 }
@@ -1401,7 +1476,7 @@ function closeSb(){document.getElementById('sidebar').classList.remove('open');d
 
 function ajustarPaddingContent(){
   const tb=document.querySelector('.topbar'), ct=document.querySelector('.content');
-  if(tb&&ct){ const h=tb.getBoundingClientRect().height; if(h>0 && window.innerWidth>768) ct.style.paddingTop=(h+10)+'px'; }
+  if(tb&&ct){ const h=tb.getBoundingClientRect().height; if(h>0) ct.style.paddingTop=(h+10)+'px'; }
 }
 document.addEventListener('DOMContentLoaded',ajustarPaddingContent);
 window.addEventListener('load',ajustarPaddingContent);
@@ -1419,7 +1494,8 @@ window.addEventListener('resize',ajustarPaddingContent);
   document.getElementById('sbAtual').textContent=`${t('actualizado')} ${gd}/${gm}/${gy} · Meta Ads + Hotmart`;
   applyLang();
   ajustarPaddingContent();
-  renderOverview();
+  document.getElementById('pageTitle').textContent='Lives';
+  renderLives();
 })();
 </script>
 </body>

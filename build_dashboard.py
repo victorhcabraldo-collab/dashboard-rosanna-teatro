@@ -41,15 +41,17 @@ if 'error' in data:
 
 meta = data.get('meta_rows', [])
 hot = data.get('hotmart_rows', [])
+ll = data.get('live_leads_rows', [])
 dg = data.get('data_geracao', '')
 di = data.get('data_inicio', '')
-print(f'  Meta: {len(meta)} rows | Hotmart: {len(hot)} rows | Hasta: {dg}')
+print(f'  Meta: {len(meta)} rows | Hotmart: {len(hot)} rows | LiveLeads: {len(ll)} rows | Hasta: {dg}')
 
 with open(TEMPLATE, encoding='utf-8') as f:
     html = f.read()
 
 meta_js = json.dumps(meta, ensure_ascii=False, separators=(',', ':'))
 hot_js = json.dumps(hot, ensure_ascii=False, separators=(',', ':'))
+ll_js = json.dumps(ll, ensure_ascii=False, separators=(',', ':'))
 html = re.sub(
     r'^const META_ROWS\s*=\s*\[.*?\];',
     lambda m: 'const META_ROWS = ' + meta_js + ';',
@@ -58,6 +60,11 @@ html = re.sub(
 html = re.sub(
     r'^const HOT_ROWS\s*=\s*\[.*?\];',
     lambda m: 'const HOT_ROWS = ' + hot_js + ';',
+    html, count=1, flags=re.MULTILINE | re.DOTALL
+)
+html = re.sub(
+    r'^const LL_ROWS\s*=\s*\[.*?\];',
+    lambda m: 'const LL_ROWS = ' + ll_js + ';',
     html, count=1, flags=re.MULTILINE | re.DOTALL
 )
 html = re.sub(r'const DATA_GERACAO\s*=\s*"[^"]*";', f'const DATA_GERACAO = "{dg}";', html, count=1)
